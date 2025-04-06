@@ -1,53 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:intl/intl.dart';
-
 import '../models/todo.dart';
 
 class TodoListItem extends StatelessWidget {
-  const TodoListItem({super.key, required this.todo, required this.onDelete});
-
   final Todo todo;
-  final Function() onDelete;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  final VoidCallback onTap;
+  final void Function(bool?) onCheck;
+
+  const TodoListItem({
+    super.key,
+    required this.todo,
+    required this.onDelete,
+    required this.onEdit,
+    required this.onTap,
+    required this.onCheck,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Slidable(
-        key: ValueKey(todo.title),
-        endActionPane: ActionPane(
-          motion: const ScrollMotion(),
-          extentRatio: 0.2,
-          children: [
-            SlidableAction(
-              onPressed: (context) => onDelete(),
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-            ),
-          ],
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: Colors.grey[200],
+    return Slidable(
+      key: ValueKey(todo.title + todo.dateTime.toString()),
+      startActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) => onEdit(),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            icon: Icons.edit,
+            label: 'Editar',
+            borderRadius: BorderRadius.circular(8),
           ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                DateFormat('dd/MM/yyyy - EE').format(todo.dateTime),
-                style: const TextStyle(fontSize: 12),
-              ),
-              Text(
-                todo.title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ],
+        ],
+      ),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) => onDelete(),
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: 'Excluir',
+            borderRadius: BorderRadius.circular(8),
           ),
+        ],
+      ),
+      child: ListTile(
+        leading: Checkbox(
+          value: todo.isDone,
+          onChanged: onCheck,
         ),
+        title: Text(todo.title),
+        subtitle: Text(todo.description),
+        onTap: onTap,
       ),
     );
   }
